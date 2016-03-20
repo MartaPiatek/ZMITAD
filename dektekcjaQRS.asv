@@ -77,10 +77,8 @@ figure(6)
 plot([0:length(x5)-1]/fs,x5)
 xlabel('s');ylabel('V');title(' Kwadrat sygna³u EKG')
  
-%MOVING WINDOW INTEGRATION
-% Make impulse response
 h = ones (1 ,31)/31;
-Delay = 15; % Delay in samples
+Delay = 15; % OpóŸnienie próbek
 
 x6 = conv (x5 ,h);
 x6 = x6 (15+[1: N]);
@@ -88,10 +86,10 @@ x6 = x6/ max( abs(x6 ));
 
 figure(7)
 plot([0:length(x6)-1]/fs,x6)
-xlabel('s');ylabel('V');title(' ECG Signal after Averaging')
+xlabel('s');ylabel('V');title('Sygna³ EKG po uœrednieniu')
 
  
-%FIND QRS POINTS WHICH IT IS DIFFERENT THAN PAN-TOMPKINS ALGORITHM
+%Detekcja QRS
 
 max_h = max(x6);
 thresh = mean (x6 );
@@ -103,7 +101,7 @@ plot (t(1000:6000),x1(1000:6000)/max(x1))
 box on
 xlabel('s');ylabel('Integrated')
 xlim([1 3])
-
+hold off;
 
 tescik=diff(cat(1,0,poss_reg));
 left=find(tescik==1);
@@ -114,19 +112,23 @@ right=right-(6+16);% niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 
 for i=1:min(length(left),length(right))
     [R_value(i) R_loc(i)] = max( x1(left(i):right(i)) );
-    R_loc(i) = R_loc(i)-1+left(i); % add offset
+    R_loc(i) = R_loc(i)-1+left(i); % dodanie przesuniêcia
 
     [Q_value(i) Q_loc(i)] = min( x1(left(i):R_loc(i)) );
-    Q_loc(i) = Q_loc(i)-1+left(i); % add offset
+    Q_loc(i) = Q_loc(i)-1+left(i); % dodanie przesuniêcia
+
 
     [S_value(i) S_loc(i)] = min( x1(R_loc(i):right(i)) );
-    S_loc(i) = S_loc(i)-1+left(i); % add offset
+    S_loc(i) = S_loc(i)-1+left(i); % dodanie przesuniêcia
+
     
     [P_value(i) P_loc(i)] = max( x1(left(i):Q_loc(i)) );
-    P_loc(i) = P_loc(i)-1+left(i); % add offset
+    P_loc(i) = P_loc(i)-1+left(i); % dodanie przesuniêcia
+
 
     [T_value(i) T_loc(i)] = max( x1(Q_loc(i):(Q_loc(i)+300)) );
-    T_loc(i) = T_loc(i)-1+left(i); % add offset
+    T_loc(i) = T_loc(i)-1+left(i); % dodanie przesuniêcia
+
     
     seg1=x1(R_loc(i):right(i)+200);
     minimum=min(seg1);
@@ -143,7 +145,8 @@ for i=1:min(length(left),length(right))
     min_indeks=find(seg3==minimum);
     Q_indeks(i)=R_loc(i)-min_indeks(1)
     
-    
+    seg4=x1(S_indeks:S_indeks+250);
+    max_ser
 end
 
 % usuniêcie indeksów na pocz¹tku sygna³u
@@ -164,8 +167,7 @@ seg1=x1(R_loc(1):right(1)+200);
 minimum=min(seg1)
 min_indeks=find(seg1==minimum)
 Q_indeks=min_indeks(1)
-% noweMin=find(min(x1(R_loc(1)+200:right(1)+200)))
-% noweMin=noweMin(find(noweMin~=1));
+
     seg2=x1(left(i)-200:R_loc(i));
     minimum=min(seg2)
     max_indeks=find(seg1==minimum)
@@ -186,12 +188,23 @@ ylabel('licznoœci')
 
 %% Uœrednianie po kilku cyklach pracy serca
 
-N=5 %liczba cykli do uœrednienia
-sum=0;
-for i=1:N
-frag1=x1((R_loc(i)+600): (R_loc(i+1)+500))
+N=4 %liczba cykli do uœrednienia
+i=1
+sum=x1(R_loc(i)+550:R_loc(i+1)+550);
+
+
+for i=2:N+1
+frag1=x1(R_loc(i)+550:R_loc(i+1)+550)
+if(length(frag1)~=length(sum))
+   T=0.5*length(sum);
+   frag1=x1((R_loc(i)+T):(R_loc(i+1)+T))
+    
+end
 sum=sum+frag1;
 
 end
 figure;
 plot(frag1)
+
+figure;
+plot(sum)

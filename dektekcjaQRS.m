@@ -11,10 +11,7 @@ figure(1)
 subplot(2,1,1)
 plot(t,x1)
 xlabel('s');ylabel('V');title('Wejœciowy sygna³ EKG')
-subplot(2,1,2)
-plot(t(200:600),x1(200:600))
-xlabel('s');ylabel('V');title('Wejœciowy sygna³ EKG fragment 1-3 s')
-xlim([1 3])
+
  
 %usuniêcie sk³adowej sta³ej i normalizacja sygna³u
 x1 = x1 - mean (x1 );    % usuniêcie sk³adowej sta³ej
@@ -77,8 +74,6 @@ figure(6)
 plot([0:length(x5)-1]/fs,x5)
 xlabel('s');ylabel('V');title(' Kwadrat sygna³u EKG')
  
-%MOVING WINDOW INTEGRATION
-% Make impulse response
 h = ones (1 ,31)/31;
 Delay = 15; % OpóŸnienie próbek
 
@@ -103,7 +98,7 @@ plot (t(1000:6000),x1(1000:6000)/max(x1))
 box on
 xlabel('s');ylabel('Integrated')
 xlim([1 3])
-
+hold off;
 
 tescik=diff(cat(1,0,poss_reg));
 left=find(tescik==1);
@@ -147,7 +142,10 @@ for i=1:min(length(left),length(right))
     min_indeks=find(seg3==minimum);
     Q_indeks(i)=R_loc(i)-min_indeks(1)
     
-    
+    seg4=x1(S_indeks(i):S_indeks(i)+400);
+    max_seg4=max(seg4);
+    max_seg4_ind=find(seg4==max_seg4)
+    T_indeks(i)=S_indeks(i)+max_seg4_ind(1);
 end
 
 % usuniêcie indeksów na pocz¹tku sygna³u
@@ -164,6 +162,19 @@ plot (t,x1/max(x1)  ,t(P_loc) ,P_value(1:end), 's', t(R_loc) ,R_value(1:end) , '
 legend('EKG','P','R','S','Q','T');
 
 %% 
+figure
+
+X=x1/max(x1);
+title('ECG Signal with R points');
+plot (t,x1/max(x1) , t(R_loc) ,R_value(1:end) , 'r^',t(S_indeks) ,X(S_indeks) , 'o' ...
+    ,t(T_indeks) ,X(T_indeks) , 's',t(Q_indeks) ,X(Q_indeks) , '*');                          
+legend('EKG','R','S','T','Q');
+% subplot(2,1,2)
+% plot (t,x1/max(x1)  , t(P_loc) ,P_value(1:end),'s', t(R_loc) ,R_value(1:end) , 'r^', ...
+%     t(S_loc) ,S_value(1:end), '*',t(Q_loc) , Q_value(1:end), 'o',t(T_loc) , T_value(1:end), 'k*');
+% xlim([1 3])
+
+%%
 seg1=x1(R_loc(1):right(1)+200);
 minimum=min(seg1)
 min_indeks=find(seg1==minimum)

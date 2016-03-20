@@ -8,7 +8,6 @@ t = [0:N-1]/fs;        % wektor czasu
 
 
 figure(1)
-subplot(2,1,1)
 plot(t,x1)
 xlabel('s');ylabel('V');title('Wejœciowy sygna³ EKG')
 
@@ -110,37 +109,39 @@ right=right-(6+16);% niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 for i=1:min(length(left),length(right))
     [R_value(i) R_loc(i)] = max( x1(left(i):right(i)) );
     R_loc(i) = R_loc(i)-1+left(i); % dodanie przesuniêcia
-
-    [Q_value(i) Q_loc(i)] = min( x1(left(i):R_loc(i)) );
-    Q_loc(i) = Q_loc(i)-1+left(i); % dodanie przesuniêcia
-
-
-    [S_value(i) S_loc(i)] = min( x1(R_loc(i):right(i)) );
-    S_loc(i) = S_loc(i)-1+left(i); % dodanie przesuniêcia
-
-    
-    [P_value(i) P_loc(i)] = max( x1(left(i):Q_loc(i)) );
-    P_loc(i) = P_loc(i)-1+left(i); % dodanie przesuniêcia
-
-
-    [T_value(i) T_loc(i)] = max( x1(Q_loc(i):(Q_loc(i)+300)) );
-    T_loc(i) = T_loc(i)-1+left(i); % dodanie przesuniêcia
+% 
+%     [Q_value(i) Q_loc(i)] = min( x1(left(i):R_loc(i)) );
+%     Q_loc(i) = Q_loc(i)-1+left(i); % dodanie przesuniêcia
+% 
+% 
+%     [S_value(i) S_loc(i)] = min( x1(R_loc(i):right(i)) );
+%     S_loc(i) = S_loc(i)-1+left(i); % dodanie przesuniêcia
+% 
+%     
+%     [P_value(i) P_loc(i)] = max( x1(left(i):Q_loc(i)) );
+%     P_loc(i) = P_loc(i)-1+left(i); % dodanie przesuniêcia
+% 
+% 
+%     [T_value(i) T_loc(i)] = max( x1(Q_loc(i):(Q_loc(i)+300)) );
+%     T_loc(i) = T_loc(i)-1+left(i); % dodanie przesuniêcia
 
     
     seg1=x1(R_loc(i):right(i)+200);
-    minimum=min(seg1);
-    min_indeks=find(seg1==minimum);
-    S_indeks(i)=R_loc(i)+min_indeks(1)
+    min_seg1=min(seg1);
+    min_seg1_ind=find(seg1==min_seg1);
+    S_indeks(i)=R_loc(i)+min_seg1_ind(1)
     
-    seg2=x1(left(i)-200:left(i));
-    maksimum=max(seg2);
-    max_indeks=find(seg2==maksimum);
-   P_indeks(i)=left(i)-max_indeks(1)
+    seg3=x1(left(i)-100:R_loc(i));
+    min_seg3=min(seg3);
+    min_seg3_ind=find(seg3==min_seg3);
+    Q_indeks(i)=left(i)-100+min_seg3_ind(1)
     
-    seg3=x1(R_loc(i)-150:R_loc(i));
-    minimum=min(seg3);
-    min_indeks=find(seg3==minimum);
-    Q_indeks(i)=R_loc(i)-min_indeks(1)
+    seg2=x1(left(i)-200:Q_indeks(i));
+    max_seg2=max(seg2);
+    max_seg2_ind=find(seg2==max_seg2);
+    P_indeks(i)=left(i)-200+max_seg2_ind(1)
+    
+
     
     seg4=x1(S_indeks(i):S_indeks(i)+400);
     max_seg4=max(seg4);
@@ -149,32 +150,50 @@ for i=1:min(length(left),length(right))
 end
 
 % usuniêcie indeksów na pocz¹tku sygna³u
-P_loc=P_loc(find(P_loc~=0));
-Q_loc=Q_loc(find(Q_loc~=0));
-R_loc=R_loc(find(R_loc~=0));
-S_loc=S_loc(find(S_loc~=0));
-T_loc=T_loc(find(T_loc~=0));
+% P_loc=P_loc(find(P_loc~=0));
+% Q_loc=Q_loc(find(Q_loc~=0));
+% R_loc=R_loc(find(R_loc~=0));
+% S_loc=S_loc(find(S_loc~=0));
+% T_loc=T_loc(find(T_loc~=0));
 %%
-figure
-title('Sygna³ EKG po detekcji');
-plot (t,x1/max(x1)  ,t(P_loc) ,P_value(1:end), 's', t(R_loc) ,R_value(1:end) , 'r^', ...
-    t(S_loc) ,S_value(1:end), '*',t(Q_loc) , Q_value(1:end), 'o',t(T_loc) , T_value(1:end), 'k*');                          
-legend('EKG','P','R','S','Q','T');
+% figure
+% title('Sygna³ EKG po detekcji');
+% plot (t,x1/max(x1)  ,t(P_loc) ,P_value(1:end), 's', t(R_loc) ,R_value(1:end) , 'r^', ...
+%     t(S_loc) ,S_value(1:end), '*',t(Q_loc) , Q_value(1:end), 'o',t(T_loc) , T_value(1:end), 'k*');                          
+% legend('EKG','P','R','S','Q','T');
 
 %% 
 figure
 
 X=x1/max(x1);
-title('ECG Signal with R points');
+title('Sygna³ EKG po detekcji');
 plot (t,x1/max(x1) , t(R_loc) ,R_value(1:end) , 'r^',t(S_indeks) ,X(S_indeks) , 'o' ...
-    ,t(T_indeks) ,X(T_indeks) , 's',t(Q_indeks) ,X(Q_indeks) , '*');                          
-legend('EKG','R','S','T','Q');
+    ,t(T_indeks) ,X(T_indeks) , 's',t(Q_indeks) ,X(Q_indeks) , '*',t(P_indeks) ,X(P_indeks),'gs');                          
+legend('EKG','R','S','T','Q','P');
 % subplot(2,1,2)
 % plot (t,x1/max(x1)  , t(P_loc) ,P_value(1:end),'s', t(R_loc) ,R_value(1:end) , 'r^', ...
 %     t(S_loc) ,S_value(1:end), '*',t(Q_loc) , Q_value(1:end), 'o',t(T_loc) , T_value(1:end), 'k*');
 % xlim([1 3])
 
-%%
+%% obliczanie czêstoœci pracy serca
+
+HR=(length(R_loc))*60/t(end) % liczba uderzeñ na min
+
+
+
+
+%% obliczanie interwa³u RR
+for i=1:length(R_loc)-1
+RR_interwal(i)=R_loc(i+1)-R_loc(i);
+end
+
+figure;
+%plot(RR_interwal,'r.')
+hist(RR_interwal,10)
+xlabel('czas trwania odcinka RR [ms]')
+ylabel('licznoœci')
+
+%% test segmentów
 seg1=x1(R_loc(1):right(1)+200);
 minimum=min(seg1)
 min_indeks=find(seg1==minimum)
@@ -187,17 +206,6 @@ Q_indeks=min_indeks(1)
     
 figure;
 plot(seg1)
-%% obliczanie interwa³u RR
-for i=1:length(R_loc)-1
-RR_interwal(i)=R_loc(i+1)-R_loc(i);
-end
-
-figure;
-%plot(RR_interwal,'r.')
-hist(RR_interwal,10)
-xlabel('czas trwania odcinka RR [ms]')
-ylabel('licznoœci')
-
 %% Uœrednianie po kilku cyklach pracy serca
 
 N=4 %liczba cykli do uœrednienia

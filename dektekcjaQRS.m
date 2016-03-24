@@ -103,16 +103,16 @@ X=x1/max(x1);
 
 for i=1:min(length(left),length(right))
     [R_value(i) R_loc(i)] = max( x1(left(i):right(i)) );
-    R_loc(i) = R_loc(i)-1+left(i); % dodanie przesuniêcia
+    R_index(i) = R_loc(i)-1+left(i); % dodanie przesuniêcia
 
     
-    seg1=x1(R_loc(i):right(i)+200);
+    seg1=x1(R_index(i):right(i)+200);
     min_seg1=min(seg1);
     min_seg1_ind=find(seg1==min_seg1);
-    S_index(i)=R_loc(i)+min_seg1_ind(1);
+    S_index(i)=R_index(i)+min_seg1_ind(1);
     S_value(i)=X(S_index(i));
     
-    seg3=x1(left(i)-100:R_loc(i));
+    seg3=x1(left(i)-100:R_index(i));
     min_seg3=min(seg3);
     min_seg3_ind=find(seg3==min_seg3);
     Q_index(i)=left(i)-100+min_seg3_ind(1);
@@ -132,16 +132,21 @@ for i=1:min(length(left),length(right))
     T_value(i)=X(T_index(i));
 end
 %%
+
+%%
 figure;
-plot(x1(left(i):right(i)))
+plot(X(Q_index(1):R_index(1)+500))
 
-
+poch=diff(X(Q_index(1):R_index(1)+500))
+sr=mean(X)
+figure;
+plot(poch)
 %% 
 figure
 
 X=x1/max(x1);
 title('Sygna³ EKG po detekcji');
-plot (t,x1/max(x1) , t(R_loc) ,R_value(1:end) , 'r^',t(S_index) ,X(S_index) , 'o' ...
+plot (t,x1/max(x1) , t(R_index) ,R_value(1:end) , 'r^',t(S_index) ,X(S_index) , 'o' ...
     ,t(T_index) ,X(T_index) , 's',t(Q_index) ,X(Q_index) , '*',t(P_index) ,X(P_index),'gs');                          
 legend('EKG','R','S','T','Q','P');
 
@@ -163,6 +168,8 @@ hist(RR_interwal,10)
 xlabel('czas trwania odcinka RR [ms]')
 ylabel('licznoœci')
 
+RR_interwal_AVR=mean(RR_interwal) % œrednia d³ugoœæ interwa³u RR
+RR_interwal_STD=std(RR_interwal) % odchylenie standardowe
 %% test segmentów
 seg1=x1(R_loc(1):right(1)+200);
 minimum=min(seg1)

@@ -102,8 +102,8 @@ right=right-(6+16);% niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 X=x1/max(x1);
 
 for i=1:min(length(left),length(right))
-    [R_value(i) R_loc(i)] = max( x1(left(i):right(i)) );
-    R_index(i) = R_loc(i)-1+left(i); % dodanie przesuniêcia
+    [R_value(i) R_index(i)] = max( x1(left(i):right(i)) );
+    R_index(i) = R_index(i)-1+left(i); % dodanie przesuniêcia
 
     
     seg1=x1(R_index(i):right(i)+200);
@@ -134,94 +134,380 @@ end
 %%
 
 %%
-figure;
-plot(X(Q_index(1):R_index(1)+500))
-
-poch=diff(X(Q_index(1):R_index(1)+500))
-sr=mean(X)
-figure;
-plot(poch)
-%% 
 figure
 
 X=x1/max(x1);
 title('Sygna³ EKG po detekcji');
 plot (t,x1/max(x1) , t(R_index) ,R_value(1:end) , 'r^',t(S_index) ,X(S_index) , 'o' ...
-    ,t(T_index) ,X(T_index) , 's',t(Q_index) ,X(Q_index) , '*',t(P_index) ,X(P_index),'gs');                          
+    ,t(T_index) ,X(T_index) , 's',t(Q_index) ,X(Q_index) , '*',t(P_index) ,X(P_index),'gs');    
+grid on;
 legend('EKG','R','S','T','Q','P');
+xlim([0 5])
+%%
+hold on;
+for j=2:3
+plot(S_index(j)/fs,X(S_index(j)),'k*')
 
+plot(S_start_index(j)/fs,X(S_start_index(j)),'m*')
+
+% plot((S_stop_index(j))/fs,X(S_stop_index(j)),'y*')
+
+end
+
+%%
+clear P_stop_ind;
+j=1;
+while j<length(P_index)
+    clear wart_test
+    clear wart_test2 
+ 
+wart_test(1)=X(P_index(j)-1);
+
+for i=2:150
+wart_test(i)=X(P_index(j)-i);
+roznica(i)=P_value(j) -wart_test(i);  
+
+% wart_test2(i)=X(P_index(j)+i);
+% roznica2(i)=X(P_index(j)) -wart_test(i); 
+end
+
+diff_roznica=diff(roznica);
+diff_roznica_abs=abs(diff_roznica);
+
+    tmp_max=find(diff_roznica_abs==max(diff_roznica_abs));
+%     if(length(tmp_max)>1)
+       index_max_diff_abs= tmp_max(1);
+%     end
+
+  P_start_index(j)=index_max_diff_abs; % pocz¹tek za³amka P
+  
+ P_start_index(j)=P_index(j)-P_start_index(j);
+ 
+ 
+ if(sum(abs(X(P_index(j):Q_index(j))-X(P_start_index(j)))<0.01)==0)
+     P_stop_index(j)=0;
+     P_length(j)=0;
+     P_amplitude(j)=(P_value(j)+X(P_start_index(j))); % obliczanie amplitudy za³amka P
+    
+ else
+  P_stop_ind=find(abs(X(P_index(j):Q_index(j))-X(P_start_index(j)))<0.01);
+  
+  P_stop_index(j)=P_stop_ind(1)+P_index(j); %koniec za³amka P
+  
+ P_length(j)=(P_stop_index(j)-P_start_index(j))/fs; % obliczanie d³ugoœci za³amka P
+ P_amplitude(j)=(P_value(j)+X(P_start_index(j))); % obliczanie amplitudy za³amka P
+ end
+ 
+j=j+1;
+end
+
+sum_length=0;
+number_length=0;
+sum_amplitude=0;
+number_amplitude=0;
+
+for k=1:length(P_length)
+    
+    if(P_length(k)~=0)
+        number_length=number_length+1;
+        sum_length=sum_length+P_length(k);
+    end
+
+        if(P_amplitude(k)~=0)
+        number_amplitude=number_amplitude+1;
+        sum_amplitude=sum_amplitude+P_amplitude(k);
+    end
+    
+end
+P_length_AVR=sum_length/number_length % œrednia d³ugoœæ za³amka P w sekundach
+
+P_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda w mV
+
+%%
+clear Q_stop_ind;
+j=1;
+while j<length(Q_index)
+    clear wart_test
+    clear wart_test2 
+ 
+wart_test(1)=X(Q_index(j)-1);
+
+for i=2:150
+wart_test(i)=X(Q_index(j)-i);
+roznica(i)=Q_value(j) -wart_test(i);  
+
+end
+
+diff_roznica=diff(roznica);
+diff_roznica_abs=abs(diff_roznica);
+
+    tmp_max=find(diff_roznica_abs==max(diff_roznica_abs));
+%     if(length(tmp_max)>1)
+       index_max_diff_abs= tmp_max(1);
+%     end
+
+  Q_start_index(j)=index_max_diff_abs; % pocz¹tek za³amka Q
+  
+ Q_start_index(j)=Q_index(j)-Q_start_index(j);
+ 
+ 
+ if(sum(abs(X(Q_index(j):R_index(j))-X(Q_start_index(j)))<0.01)==0)
+     Q_stop_index(j)=0;
+     Q_length(j)=0;
+     Q_amplitude(j)=(Q_value(j)+X(Q_start_index(j))); % obliczanie amplitudy za³amka Q
+    
+ else
+  Q_stop_ind=find(abs(X(Q_index(j):R_index(j))-X(Q_start_index(j)))<0.01);
+  
+  Q_stop_index(j)=Q_stop_ind(1)+Q_index(j); %koniec za³amka Q
+  
+ Q_length(j)=(Q_stop_index(j)-Q_start_index(j))/fs ;% obliczanie d³ugoœci za³amka Q
+ Q_amplitude(j)=(Q_value(j)+X(Q_start_index(j))); % obliczanie amplitudy za³amka Q
+ end
+ 
+j=j+1;
+end
+
+sum_length=0;
+number_length=0;
+sum_amplitude=0;
+number_amplitude=0;
+
+for k=1:length(Q_length)
+    
+    if(Q_length(k)~=0)
+        number_length=number_length+1;
+        sum_length=sum_length+Q_length(k);
+    end
+
+        if(Q_amplitude(k)~=0)
+        number_amplitude=number_amplitude+1;
+        sum_amplitude=sum_amplitude+Q_amplitude(k);
+    end
+    
+end
+Q_length_AVR=sum_length/number_length % œrednia d³ugoœæ za³amka Q w sekundach
+
+Q_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda Q w mV
+
+
+%%
+
+clear R_stop_ind;
+j=1;
+while j<length(R_index)
+    clear wart_test
+     
+wart_test(1)=X(R_index(j)-1);
+
+for i=2:150
+wart_test(i)=X(R_index(j)-i);
+roznica(i)=R_value(j) -wart_test(i);  
+
+end
+
+diff_roznica=diff(roznica);
+diff_roznica_abs=abs(diff_roznica);
+
+    tmp_max=find(diff_roznica_abs==max(diff_roznica_abs));
+%     if(length(tmp_max)>1)
+       index_max_diff_abs= tmp_max(1);
+%     end
+
+  R_start_index(j)=index_max_diff_abs; % pocz¹tek za³amka Q
+  
+ R_start_index(j)=R_index(j)-R_start_index(j);
+ 
+ 
+ if(sum(abs(X(R_index(j):S_index(j))-X(R_start_index(j)))<0.01)==0)
+     R_stop_index(j)=0;
+     R_length(j)=0;
+     R_amplitude(j)=(R_value(j)+X(R_start_index(j))); % obliczanie amplitudy za³amka R
+    
+  else
+  R_stop_ind=find(abs(X(R_index(j):S_index(j))-X(R_start_index(j)))<0.01);
+  
+  R_stop_index(j)=R_stop_ind(1)+R_index(j); %koniec za³amka Q
+  
+ R_length(j)=(R_stop_index(j)-R_start_index(j))/fs ;% obliczanie d³ugoœci za³amka R
+ R_amplitude(j)=(R_value(j)+X(R_start_index(j))); % obliczanie amplitudy za³amka R
+ end
+ 
+j=j+1;
+end
+
+sum_length=0;
+number_length=0;
+sum_amplitude=0;
+number_amplitude=0;
+
+for k=1:length(R_length)
+    
+    if(R_length(k)~=0)
+        number_length=number_length+1;
+        sum_length=sum_length+R_length(k);
+    end
+
+        if(R_amplitude(k)~=0)
+        number_amplitude=number_amplitude+1;
+        sum_amplitude=sum_amplitude+R_amplitude(k);
+    end
+    
+end
+R_length_AVR=sum_length/number_length % œrednia d³ugoœæ za³amka R w sekundach
+
+R_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda R w mV
+
+%%
+
+clear S_stop_ind;
+j=1;
+while j<length(S_index)
+    clear wart_test
+     
+wart_test(1)=X(S_index(j)-1);
+
+for i=2:100
+wart_test(i)=X(S_index(j)-i);
+roznica(i)=S_value(j) -wart_test(i);  
+
+end
+
+diff_roznica=diff(roznica);
+diff_roznica_abs=diff_roznica;
+%diff_roznica_abs=abs(diff_roznica); %%%%%%%%%%%%%%%%%%%%%%
+
+    tmp_max=find(diff_roznica_abs==min(diff_roznica_abs));%%%%%%%%%% min czy max
+%     if(length(tmp_max)>1)
+       index_max_diff_abs= tmp_max(1);
+%     end
+
+  S_start_index(j)=index_max_diff_abs; % pocz¹tek za³amka Q
+  
+ S_start_index(j)=S_index(j)-S_start_index(j);
+ 
+ 
+ if(sum(abs(X(S_index(j):T_index(j))-X(S_start_index(j)))<0.01)==0)
+     S_stop_index(j)=0;
+     S_length(j)=0;
+     S_amplitude(j)=(S_value(j)+X(S_start_index(j))); % obliczanie amplitudy za³amka S
+    
+ else
+  S_stop_ind=find(abs(X(S_index(j):T_index(j))-X(S_start_index(j)))<0.01);
+  
+  S_stop_index(j)=S_stop_ind(1)+S_index(j); %koniec za³amka Q
+  
+ S_length(j)=(S_stop_index(j)-S_start_index(j))/fs ;% obliczanie d³ugoœci za³amka Q
+ S_amplitude(j)=(S_value(j)+X(S_start_index(j))); % obliczanie amplitudy za³amka Q
+ end
+ 
+j=j+1;
+end
+
+sum_length=0;
+number_length=0;
+sum_amplitude=0;
+number_amplitude=0;
+
+for k=1:length(S_length)
+    
+    if(S_length(k)~=0)
+        number_length=number_length+1;
+        sum_length=sum_length+S_length(k);
+    end
+
+        if(S_amplitude(k)~=0)
+        number_amplitude=number_amplitude+1;
+        sum_amplitude=sum_amplitude+S_amplitude(k);
+    end
+    
+end
+S_length_AVR=sum_length/number_length % œrednia d³ugoœæ za³amka S w sekundach
+
+S_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda S w mV
+
+
+%%
+
+clear T_stop_ind;
+j=1;
+while j<length(T_index)-1
+    clear wart_test
+     
+wart_test(1)=X(T_index(j)-1);
+
+for i=2:150
+wart_test(i)=X(T_index(j)-i);
+roznica(i)=T_value(j) -wart_test(i);  
+
+end
+
+diff_roznica=diff(roznica);
+diff_roznica_abs=abs(diff_roznica);
+
+    tmp_max=find(diff_roznica_abs==max(diff_roznica_abs));
+%     if(length(tmp_max)>1)
+       index_max_diff_abs= tmp_max(1);
+%     end
+
+  T_start_index(j)=index_max_diff_abs; % pocz¹tek za³amka Q
+  
+ T_start_index(j)=T_index(j)-T_start_index(j);
+ 
+ 
+ if(sum(abs(X(T_index(j):P_index(j+1))-X(T_start_index(j)))<0.01)==0)
+     T_stop_index(j)=0;
+     T_length(j)=0;
+     T_amplitude(j)=(T_value(j)+X(T_start_index(j))); % obliczanie amplitudy za³amka S
+    
+ else
+  T_stop_ind=find(abs(X(T_index(j):P_index(j+1))-X(T_start_index(j)))<0.01);
+  
+  T_stop_index(j)=T_stop_ind(1)+T_index(j); %koniec za³amka Q
+  
+ T_length(j)=(T_stop_index(j)-T_start_index(j))/fs ;% obliczanie d³ugoœci za³amka Q
+ T_amplitude(j)=(T_value(j)+X(T_start_index(j))); % obliczanie amplitudy za³amka Q
+ end
+ 
+j=j+1;
+end
+
+sum_length=0;
+number_length=0;
+sum_amplitude=0;
+number_amplitude=0;
+
+for k=1:length(T_length)
+    
+    if(T_length(k)~=0)
+        number_length=number_length+1;
+        sum_length=sum_length+T_length(k);
+    end
+
+        if(T_amplitude(k)~=0)
+        number_amplitude=number_amplitude+1;
+        sum_amplitude=sum_amplitude+T_amplitude(k);
+    end
+    
+end
+T_length_AVR=sum_length/number_length % œrednia d³ugoœæ za³amka T w sekundach
+
+T_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda T w mV
 %% obliczanie czêstoœci pracy serca
 
-HR=(length(R_loc))*60/t(end) % liczba uderzeñ na min
+HR=(length(R_index))*60/t(end) % liczba uderzeñ na min
 
 
-
-
-%% obliczanie interwa³u RR
-for i=1:length(R_loc)-1
-RR_interwal(i)=R_loc(i+1)-R_loc(i);
-end
-
-figure;
-%plot(RR_interwal,'r.')
-hist(RR_interwal,10)
-xlabel('czas trwania odcinka RR [ms]')
-ylabel('licznoœci')
-
-RR_interwal_AVR=mean(RR_interwal) % œrednia d³ugoœæ interwa³u RR
-RR_interwal_STD=std(RR_interwal) % odchylenie standardowe
-%% test segmentów
-seg1=x1(R_loc(1):right(1)+200);
-minimum=min(seg1)
-min_indeks=find(seg1==minimum)
-Q_indeks=min_indeks(1)
-
-    seg2=x1(left(i)-200:R_loc(i));
-    minimum=min(seg2)
-    max_indeks=find(seg1==minimum)
-    Q_indeks(i)=R_loc(i)+min_indeks(1)
-    
-figure;
-plot(seg1)
-%% Uœrednianie po kilku cyklach pracy serca
-
-
-N=4 %liczba cykli do uœrednienia
-i=1
-
-sum=x1(R_loc(i)+550:R_loc(i+1)+550);
-freq1=1*length(x1(R_loc(i)+550:R_loc(i+1)+550))/fs
-%%
-N=4
-for i=1:N-1
-    
-frag1=x1(R_loc(i)+550:R_loc(i+1)+550)
-
-% if(length(frag1)~=length(sum))
-%    T=0.5*length(sum);
-%    frag1=x1((R_loc(i)+T):(R_loc(i+1)+T))
-%     
+% %% obliczanie interwa³u RR
+% for i=1:length(R_index)-1
+% RR_interwal(i)=R_index(i+1)-R_index(i);
 % end
-%sum=sum+frag1;
-
-freq(i)=1*length(x1(R_loc(i)+550:R_loc(i+1)+550))/fs;
-
-n_freq=min(freq);
-
-end
-n_freq=min(freq);
-p=5;
-q=p/n_freq;
-y = resample(frag1,p,131);
-%%
-
-figure;
-plot(y)
-length(y)
-length(frag1)
-%%
-figure;
-plot(frag1)
-
-figure;
-plot(sum)
+% 
+% figure;
+% %plot(RR_interwal,'r.')
+% hist(RR_interwal,10)
+% xlabel('czas trwania odcinka RR [ms]')
+% ylabel('licznoœci')
+% 
+% RR_interwal_AVR=mean(RR_interwal) % œrednia d³ugoœæ interwa³u RR
+% RR_interwal_STD=std(RR_interwal) % odchylenie standardowe

@@ -1,4 +1,4 @@
-function [RR_interwal]=fun_RR_interval(R_index)
+function [RR_interwal_AVR]=fun_RR_interval(R_index)
 
 % obliczanie interwa³u RR
 for i=1:length(R_index)-1

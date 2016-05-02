@@ -2,6 +2,7 @@ close all
 
 
 x1 = val(1,:); % wybranie odprowadzenia do analizy
+
 fs = 1000;              % czêstotliwoœæ próbkowania
 N = length (x1);       % d³ugoœæ sygna³u
 t = [0:N-1]/fs;        % wektor czasu
@@ -100,36 +101,36 @@ left=left-(6+16);  % niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 right=right-(6+16);% niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 
 X=x1/max(x1);
-
-for i=1:min(length(left),length(right))
-    [R_value(i) R_index(i)] = max( x1(left(i):right(i)) );
-    R_index(i) = R_index(i)-1+left(i); % dodanie przesuniêcia
+%%
+for i=3:min(length(left),length(right))
+    [R_value(i-2) R_index(i-2)] = max( x1(left(i):right(i)) );
+    R_index(i-2) = R_index(i-2)-1+left(i); % dodanie przesuniêcia
 
     
-    seg1=x1(R_index(i):right(i)+200);
+    seg1=x1(R_index(i-2):right(i)+200);
     min_seg1=min(seg1);
     min_seg1_ind=find(seg1==min_seg1);
-    S_index(i)=R_index(i)+min_seg1_ind(1);
-    S_value(i)=X(S_index(i));
+    S_index(i-2)=R_index(i-2)+min_seg1_ind(1);
+    S_value(i-2)=X(S_index(i-2));
     
-    seg3=x1(left(i)-100:R_index(i));
+    seg3=x1(left(i)-100:R_index(i-2));
     min_seg3=min(seg3);
     min_seg3_ind=find(seg3==min_seg3);
-    Q_index(i)=left(i)-100+min_seg3_ind(1);
-    Q_value(i)=X(Q_index(i));
+    Q_index(i-2)=left(i)-100+min_seg3_ind(1);
+    Q_value(i-2)=X(Q_index(i-2));
     
-    seg2=x1(left(i)-200:Q_index(i));
+    seg2=x1(left(i)-200:Q_index(i-2));
     max_seg2=max(seg2);
     max_seg2_ind=find(seg2==max_seg2);
-    P_index(i)=left(i)-200+max_seg2_ind(1);
-    P_value(i)=X(P_index(i));
+    P_index(i-2)=left(i)-200+max_seg2_ind(1);
+    P_value(i-2)=X(P_index(i-2));
 
     
-    seg4=x1(S_index(i):S_index(i)+400);
+    seg4=x1(S_index(i-2):S_index(i-2)+300);
     max_seg4=max(seg4);
     max_seg4_ind=find(seg4==max_seg4);
-    T_index(i)=S_index(i)+max_seg4_ind(1);
-    T_value(i)=X(T_index(i));
+    T_index(i-2)=S_index(i-2)+max_seg4_ind(1);
+    T_value(i-2)=X(T_index(i-2));
 end
 %%
 
@@ -138,8 +139,8 @@ figure
 
 X=x1/max(x1);
 title('Sygna³ EKG po detekcji');
-plot (t,x1/max(x1) , t(R_index) ,R_value(1:end) , 'r^',t(S_index) ,X(S_index) , 'o' ...
-    ,t(T_index) ,X(T_index) , 's',t(Q_index) ,X(Q_index) , '*',t(P_index) ,X(P_index),'gs');    
+plot (t,x1/max(x1) , t(R_index(1:end)) ,R_value((1:end)) , 'r^',t(S_index(1:end)) ,X(S_index(1:end)) , 'o' ...
+    ,t(T_index(1:end)) ,X(T_index(1:end)) , 's',t(Q_index(1:end)) ,X(Q_index(1:end)) , '*',t(P_index(1:end)) ,X(P_index(1:end)),'gs');    
 grid on;
 legend('EKG','R','S','T','Q','P');
 xlim([0 5])
@@ -493,6 +494,19 @@ end
 T_length_AVR=sum_length/number_length % œrednia d³ugoœæ za³amka T w sekundach
 
 T_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda T w mV
+
+%% zespó³ QRS do poprawy problem z S
+
+for i=1:length(Q_start_index)
+QRS_length(i)=((S_start_index(i)+(S_length(i)*fs))-Q_start_index(i))/fs
+
+QRS(i)=Q_length(i)+R_length(i)+S_length(i);
+end
+
+%% PQ
+for i=1:length(P_start_index)
+   PQ(i)=(Q_stop_index(i)-P_start_index(i))/fs 
+end
 %% obliczanie czêstoœci pracy serca
 
 HR=(length(R_index))*60/t(end) % liczba uderzeñ na min

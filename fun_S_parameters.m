@@ -1,8 +1,8 @@
-function [S_length_AVR,S_amplitude_AVR]=fun_S_parameters(T_index,S_value,S_index,ekg)
+function [S_stop_index,S_start_index,S_length_AVR,S_amplitude_AVR]=fun_S_parameters(T_index,S_value,S_index,ekg)
 
 % obliczanie d³ugoœci i amplitudy za³amka P
 fs=1000;
-X=ekg/max(ekg)
+X=ekg/max(ekg);
 
 clear S_stop_ind;
 j=1;
@@ -68,7 +68,7 @@ for k=1:length(S_length)
 end
 S_length_AVR=1000*sum_length/number_length % œrednia d³ugoœæ za³amka S w ms
 
-S_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda S w mV
+S_amplitude_AVR=(sum_amplitude/number_amplitude) % œrednia amplituda S w mV
 
 S_length_std=std(S_length_AVR); %odchylenie std
 S_amplitude_std=std(S_amplitude_AVR);

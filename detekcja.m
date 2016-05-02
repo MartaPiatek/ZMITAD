@@ -63,33 +63,36 @@ right=right-(6+16);% niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 
 X=x1/max(x1);
 
-for i=1:min(length(left),length(right))
-    [R_value(i) R_index(i)] = max( x1(left(i):right(i)) );
-    R_index(i) = R_index(i)-1+left(i); % dodanie przesuniêcia
+for i=3:min(length(left),length(right))
+    
+    [R_value(i-2) R_index(i-2)] = max( x1(left(i):right(i)) );
+    R_index(i-2) = R_index(i-2)-1+left(i); % dodanie przesuniêcia
 
-    seg1=x1(R_index(i):right(i)+200);
+    
+    seg1=x1(R_index(i-2):right(i)+200);
     min_seg1=min(seg1);
     min_seg1_ind=find(seg1==min_seg1);
-    S_index(i)=R_index(i)+min_seg1_ind(1);
-    S_value(i)=X(S_index(i));
+    S_index(i-2)=R_index(i-2)+min_seg1_ind(1);
+    S_value(i-2)=X(S_index(i-2));
     
-    seg3=x1(left(i)-100:R_index(i));
+    seg3=x1(left(i)-100:R_index(i-2));
     min_seg3=min(seg3);
     min_seg3_ind=find(seg3==min_seg3);
-    Q_index(i)=left(i)-100+min_seg3_ind(1);
-    Q_value(i)=X(Q_index(i));
+    Q_index(i-2)=left(i)-100+min_seg3_ind(1);
+    Q_value(i-2)=X(Q_index(i-2));
     
-    seg2=x1(left(i)-200:Q_index(i));
+    seg2=x1(left(i)-200:Q_index(i-2));
     max_seg2=max(seg2);
     max_seg2_ind=find(seg2==max_seg2);
-    P_index(i)=left(i)-200+max_seg2_ind(1);
-    P_value(i)=X(P_index(i));
+    P_index(i-2)=left(i)-200+max_seg2_ind(1);
+    P_value(i-2)=X(P_index(i-2));
 
-    seg4=x1(S_index(i):S_index(i)+400);
+    
+    seg4=x1(S_index(i-2):S_index(i-2)+300);
     max_seg4=max(seg4);
     max_seg4_ind=find(seg4==max_seg4);
-    T_index(i)=S_index(i)+max_seg4_ind(1);
-    T_value(i)=X(T_index(i));
+    T_index(i-2)=S_index(i-2)+max_seg4_ind(1);
+    T_value(i-2)=X(T_index(i-2));
 end
 
 end

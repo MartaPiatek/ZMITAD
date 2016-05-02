@@ -1,4 +1,4 @@
-function [HR]=fun_HR(ekg)
+function [HR]=fun_HR(ekg,R_index)
 
 % obliczanie czêstoœci pracy serca
 fs = 1000;              % czêstotliwoœæ próbkowania

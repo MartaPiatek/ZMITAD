@@ -1,4 +1,4 @@
-function [T_length_AVR,T_amplitude_AVR]=fun_T_parameters(P_index,T_value,T_index,ekg)
+function [T_stop_index,T_start_index,T_length_AVR,T_amplitude_AVR]=fun_T_parameters(P_index,T_value,T_index,ekg)
 
 % obliczanie d³ugoœci i amplitudy za³amka T
 fs=1000;
@@ -65,9 +65,9 @@ for k=1:length(T_length)
     end
     
 end
-T_length_AVR=1000*sum_length/number_length % œrednia d³ugoœæ za³amka T w sekundach
+T_length_AVR=1000*sum_length/number_length % œrednia d³ugoœæ za³amka T w milisekundach
 
-T_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda T w mV
+T_amplitude_AVR=(sum_amplitude/number_amplitude) % œrednia amplituda T w mV
 
 T_length_std=std(T_length_AVR); %odchylenie std
 T_amplitude_std=std(T_amplitude_AVR);

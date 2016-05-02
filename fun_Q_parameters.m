@@ -1,4 +1,4 @@
-function [Q_length_AVR,Q_amplitude_AVR]=fun_Q_parameters(R_index,Q_value,Q_index,ekg)
+function [Q_stop_index,Q_start_index,Q_length_AVR,Q_amplitude_AVR]=fun_Q_parameters(R_index,Q_value,Q_index,ekg)
 
 % obliczanie d³ugoœci i amplitudy za³amka Q
 fs=1000;
@@ -68,7 +68,7 @@ for k=1:length(Q_length)
 end
 Q_length_AVR=1000*sum_length/number_length % œrednia d³ugoœæ za³amka Q w sekundach
 
-Q_amplitude_AVR=sum_amplitude/number_amplitude % œrednia amplituda Q w mV
+Q_amplitude_AVR=(sum_amplitude/number_amplitude) % œrednia amplituda Q w mV
 
 Q_length_std=std(Q_length_AVR); %odchylenie std
 Q_amplitude_std=std(Q_amplitude_AVR);

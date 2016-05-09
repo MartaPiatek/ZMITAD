@@ -102,8 +102,8 @@ right=right-(6+16);% niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 X=x1/max(x1);
 
 for i=1:min(length(left),length(right))
-    [R_value(i) R_loc(i)] = max( x1(left(i):right(i)) );
-    R_index(i) = R_loc(i)-1+left(i); % dodanie przesuniêcia
+    [R_value(i) R_index(i)] = max( x1(left(i):right(i)) );
+    R_index(i) = R_index(i)-1+left(i); % dodanie przesuniêcia
 
     
     seg1=x1(R_index(i):right(i)+200);
@@ -134,94 +134,124 @@ end
 %%
 
 %%
-figure;
-plot(X(Q_index(1):R_index(1)+500))
-
-poch=diff(X(Q_index(1):R_index(1)+500))
-sr=mean(X)
-figure;
-plot(poch)
-%% 
 figure
 
 X=x1/max(x1);
 title('Sygna³ EKG po detekcji');
 plot (t,x1/max(x1) , t(R_index) ,R_value(1:end) , 'r^',t(S_index) ,X(S_index) , 'o' ...
-    ,t(T_index) ,X(T_index) , 's',t(Q_index) ,X(Q_index) , '*',t(P_index) ,X(P_index),'gs');                          
+    ,t(T_index) ,X(T_index) , 's',t(Q_index) ,X(Q_index) , '*',t(P_index) ,X(P_index),'gs');    
+grid on;
 legend('EKG','R','S','T','Q','P');
+xlim([0 5])
+%%
+hold on;
+for j=1:10
+plot(P_index(j)/fs,X(P_index(j)),'k*')
 
+plot(P_start_index(j)/fs,X(P_start_index(j)),'m*')
+
+plot((P_stop_index(j))/fs,X(P_stop_index(j)),'y*')
+
+end
+
+%%
+clear P_stop_ind;
+for j=1:10
+    
+ 
+wart_test(1)=X(P_index(j)-1);
+wart_test2(1)=X(P_index(j)-1);
+
+for i=2:150
+wart_test(i)=X(P_index(j)-i);
+roznica(i)=X(P_index(j)) -wart_test(i);  
+
+% wart_test2(i)=X(P_index(j)+i);
+% roznica2(i)=X(P_index(j)) -wart_test(i); 
+end
+
+po=diff(roznica);
+po_abs=abs(po);
+% figure;
+% plot(po_abs);hold on;
+% plot(find(po_abs==max(po_abs)),max(po_abs),'r*')
+% title('po abs')
+% 
+% figure;
+% plot(po);hold on;
+% plot(find(po==min(po)),min(po),'r*')
+% title('po')
+
+ P_start_index(j)=find(po_abs==max(po_abs));% pocz¹tek za³amka P
+ P_start_index(j)=P_index(j)-P_start_index(j);
+ 
+  P_stop_ind=find(abs(X(P_index(j):Q_index(j))-X(P_start_index(j)))<0.01);
+  P_stop_index(j)=P_stop_ind(1)+P_index(j) %koniec za³amka P
+  
+ P_length(j)=(P_stop_index(j)-P_start_index(j))/fs % obliczanie d³ugoœci za³amka P
+ P_amplituda(j)=(P_value(j)+X(P_start_index(j))) % obliczanie amplitudy za³amka P
+end
+
+P_length_AVR=mean(P_length) % œrednia d³ugoœæ za³amka P w sekundach
+
+P_amplituda_AVR=mean(P_amplituda) % œrednia amplituda w mV
+
+%%
+clear Q_stop_ind;
+for j=1:3
+    
+ 
+wart_test(1)=X(Q_index(j)-1);
+wart_test2(1)=X(Q_index(j)-1);
+
+for i=2:150
+wart_test(i)=X(Q_index(j)-i);
+roznica(i)=X(Q_index(j)) -wart_test(i);  
+
+% wart_test2(i)=X(Q_index(j)+i);
+% roznica2(i)=X(Q_index(j)) -wart_test(i); 
+end
+
+po=diff(roznica);
+po_abs=abs(po);
+% figure;
+% plot(po_abs);hold on;
+% plot(find(po_abs==max(po_abs)),max(po_abs),'r*')
+% title('po abs')
+% 
+% figure;
+% plot(po);hold on;
+% plot(find(po==min(po)),min(po),'r*')
+% title('po')
+
+ Q_start_index(j)=find(po_abs==max(po_abs));% pocz¹tek za³amka P
+ Q_start_index(j)=Q_index(j)-Q_start_index(j);
+ 
+  Q_stop_ind=find(abs(X(Q_index(j):R_index(j))-X(Q_start_index(j)))<0.01);
+  Q_stop_index(j)=Q_stop_ind(1)+Q_index(j) %koniec za³amka P
+  
+ Q_length(j)=(Q_stop_index(j)-Q_start_index(j))/fs % obliczanie d³ugoœci za³amka P
+ Q_amplituda(j)=(Q_value(j)+X(Q_start_index(j))) % obliczanie amplitudy za³amka P
+end
+
+Q_length_AVR=mean(Q_length) % œrednia d³ugoœæ za³amka P w sekundach
+
+Q_amplituda_AVR=mean(Q_amplituda) % œrednia amplituda w mV
 %% obliczanie czêstoœci pracy serca
 
-HR=(length(R_loc))*60/t(end) % liczba uderzeñ na min
+HR=(length(R_index))*60/t(end) % liczba uderzeñ na min
 
 
-
-
-%% obliczanie interwa³u RR
-for i=1:length(R_loc)-1
-RR_interwal(i)=R_loc(i+1)-R_loc(i);
-end
-
-figure;
-%plot(RR_interwal,'r.')
-hist(RR_interwal,10)
-xlabel('czas trwania odcinka RR [ms]')
-ylabel('licznoœci')
-
-RR_interwal_AVR=mean(RR_interwal) % œrednia d³ugoœæ interwa³u RR
-RR_interwal_STD=std(RR_interwal) % odchylenie standardowe
-%% test segmentów
-seg1=x1(R_loc(1):right(1)+200);
-minimum=min(seg1)
-min_indeks=find(seg1==minimum)
-Q_indeks=min_indeks(1)
-
-    seg2=x1(left(i)-200:R_loc(i));
-    minimum=min(seg2)
-    max_indeks=find(seg1==minimum)
-    Q_indeks(i)=R_loc(i)+min_indeks(1)
-    
-figure;
-plot(seg1)
-%% Uœrednianie po kilku cyklach pracy serca
-
-
-N=4 %liczba cykli do uœrednienia
-i=1
-
-sum=x1(R_loc(i)+550:R_loc(i+1)+550);
-freq1=1*length(x1(R_loc(i)+550:R_loc(i+1)+550))/fs
-%%
-N=4
-for i=1:N-1
-    
-frag1=x1(R_loc(i)+550:R_loc(i+1)+550)
-
-% if(length(frag1)~=length(sum))
-%    T=0.5*length(sum);
-%    frag1=x1((R_loc(i)+T):(R_loc(i+1)+T))
-%     
+% %% obliczanie interwa³u RR
+% for i=1:length(R_index)-1
+% RR_interwal(i)=R_index(i+1)-R_index(i);
 % end
-%sum=sum+frag1;
-
-freq(i)=1*length(x1(R_loc(i)+550:R_loc(i+1)+550))/fs;
-
-n_freq=min(freq);
-
-end
-n_freq=min(freq);
-p=5;
-q=p/n_freq;
-y = resample(frag1,p,131);
-%%
-
-figure;
-plot(y)
-length(y)
-length(frag1)
-%%
-figure;
-plot(frag1)
-
-figure;
-plot(sum)
+% 
+% figure;
+% %plot(RR_interwal,'r.')
+% hist(RR_interwal,10)
+% xlabel('czas trwania odcinka RR [ms]')
+% ylabel('licznoœci')
+% 
+% RR_interwal_AVR=mean(RR_interwal) % œrednia d³ugoœæ interwa³u RR
+% RR_interwal_STD=std(RR_interwal) % odchylenie standardowe

@@ -1,14 +1,10 @@
-<<<<<<< HEAD
+
 function [P_index,P_value,Q_index,Q_value,R_index,R_value,S_index, S_value, T_index, T_value, HR,RR_interwal]=detekcja(ekg)
 
 close all
 
-
 x1 = ekg; % wybranie odprowadzenia do analizy
-=======
-function [P_index,P_value,Q_index,Q_value,R_index,R_value,S_index, S_value, T_index, T_value]=detekcja(ekg)
-x1 = ekg(1,:); % wybranie odprowadzenia do analizy
->>>>>>> c2e9493fb5fdc31da845c6fc9847a1874cecdb8c
+
 fs = 1000;              % czêstotliwoœæ próbkowania
 N = length (x1);       % d³ugoœæ sygna³u
 t = [0:N-1]/fs;        % wektor czasu
@@ -73,10 +69,6 @@ right=right-(6+16);% niwelacja opóŸnienia pomiêdzy filtracjami LP i HP
 X=x1/max(x1);
 
 for i=3:min(length(left),length(right))
-<<<<<<< HEAD
-=======
-    
->>>>>>> c2e9493fb5fdc31da845c6fc9847a1874cecdb8c
     [R_value(i-2) R_index(i-2)] = max( x1(left(i):right(i)) );
     R_index(i-2) = R_index(i-2)-1+left(i); % dodanie przesuniêcia
 
@@ -106,17 +98,7 @@ for i=3:min(length(left),length(right))
     T_index(i-2)=S_index(i-2)+max_seg4_ind(1);
     T_value(i-2)=X(T_index(i-2));
 end
-<<<<<<< HEAD
-%%
 
-%%
-% figure;
-% plot(X(Q_index(1):R_index(1)+500))
-% 
-% poch=diff(X(Q_index(1):R_index(1)+500))
-% sr=mean(X)
-% figure;
-% plot(poch)
 %% 
 % figure
 % 
@@ -128,22 +110,11 @@ end
 
 %% obliczanie czêstoœci pracy serca
 
-HR=(length(R_index))*60/t(end) % liczba uderzeñ na min
-
-
-
+HR=(length(R_index))*60/t(end); % liczba uderzeñ na min
 
 %% obliczanie interwa³u RR
 for i=1:length(R_index)-1
 RR_interwal(i)=R_index(i+1)-R_index(i);
 end
-
-% figure;
-% %plot(RR_interwal,'r.')
-% hist(RR_interwal,10)
-% xlabel('czas trwania odcinka RR [ms]')
-% ylabel('licznoœci')
-=======
->>>>>>> c2e9493fb5fdc31da845c6fc9847a1874cecdb8c
 
 end

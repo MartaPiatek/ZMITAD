@@ -24,11 +24,8 @@ ekg=val(1,:);
 % odstêp RR
 [RR_interwal_AVR]=fun_RR_interval(R_index);
 
-<<<<<<< HEAD
 
-=======
-%%
->>>>>>> c2e9493fb5fdc31da845c6fc9847a1874cecdb8c
+
 %PQ
 [odcinek_PQ_AVR,odstep_PQ_AVR]=fun_PQ(P_start_index,P_stop_index,Q_start_index)
 

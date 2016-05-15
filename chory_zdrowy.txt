@@ -1,0 +1,30 @@
+% co mamy:
+%d³ugoœci:
+%amplitudy:
+%P_index,P_value,Q_index,Q_value,R_index,R_value,S_index, S_value, T_index, T_value
+%P_stop_index,P_start_index,P_length_AVR,P_amplitude_AVR]
+%Q_stop_index,Q_start_index,Q_length_AVR,Q_amplitude_AVR
+%R_stop_index,R_start_index,R_length_AVR,R_amplitude_AVR
+%S_stop_index,S_start_index,S_length_AVR,S_amplitude_AVR
+%T_stop_index,T_start_index,T_length_AVR,T_amplitude_AVR
+% HR [HR]=fun_HR(ekg,R_index)
+% odstêp RR [RR_interwal_AVR]
+
+%PQ [odcinek_PQ_AVR,odstep_PQ_AVR]=fun_PQ(P_start_index,P_stop_index,Q_start_index)
+%QT [odstep_QT_AVR]=fun_QT(Q_start_index,T_stop_index)
+%QRS [zespol_QRS_AVR]=fun_QRS(Q_start_index,S_stop_index)
+%ST [odcinek_ST_AVR]=fun_ST(T_start_index,S_stop_index)
+
+
+
+
+
+ 
+ if ((P_length_AVR < 110) && (P_length_AVR > 40 ) && (odstep_PQ_AVR > 0.01) && (odstep_PQ_AVR<0.2) && (Q_length_AVR<100) && (zespol_QRS_AVR < 0.5) && (zespol_QRS_AVR > 0.1) && (T_length_AVR > 60) && (T_length_AVR < 160) && (odcinek_ST_AVR > 0.00002) && (odcinek_ST_AVR < 0.12 )&&(HR < 100) && (HR > 50)&&(R_length_AVR > 10 ) && (odstep_QT_AVR < 0.60)&&(odcinek_PQ_AVR > 0.01 ) && (odcinek_PQ_AVR <0.1)&&(RR_interwal_AVR > 160)&&(T_amplitude_AVR>0.1)) 
+
+    disp('zdrowy')
+ else
+     disp('chory') 
+ end
+
+  

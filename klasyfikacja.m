@@ -1,50 +1,48 @@
+clear
+clc
+
 data=load('patientsDATA.txt');
-P_amplitude_AVR=data(:,1);
-P_length_AVR=data(:,2);
-Q_amplitude_AVR =data(:,3);
-Q_length_AVR =data(:,4);
-R_amplitude_AVR =data(:,5);
-R_length_AVR =data(:,6);
-S_amplitude_AVR =data(:,7);
-S_length_AVR =data(:,8);
-T_amplitude_AVR =data(:,9);
-T_length_AVR =data(:,10);
-odstep_PQ_AVR =data(:,11);
-odstep_QT_AVR =data(:,12);
-zespol_QRS_AVR =data(:,13);
-dcinek_PQ_AVR =data(:,14);
-odcinek_ST_AVR =data(:,15);
-HR =data(:,16);
-RR_interwal_AVR=data(:,17); 
-GRUPA =data(:,18);
-ID =data(:,19);
+
+% x=randi(100)
+% y=x+randi(144)
+
+x=1;
+y=length(data);
 
 
-%%
+P_amplitude_AVR=data(x:y,1);
+P_length_AVR=data(x:y,2);
+Q_amplitude_AVR =data(x:y,3);
+Q_length_AVR =data(x:y,4);
+R_amplitude_AVR =data(x:y,5);
+R_length_AVR =data(x:y,6);
+S_amplitude_AVR =data(x:y,7);
+S_length_AVR =data(x:y,8);
+T_amplitude_AVR =data(x:y,9);
+T_length_AVR =data(x:y,10);
+odstep_PQ_AVR =data(x:y,11);
+odstep_QT_AVR =data(x:y,12);
+zespol_QRS_AVR =data(x:y,13);
+dcinek_PQ_AVR =data(x:y,14);
+odcinek_ST_AVR =data(x:y,15);
+HR =data(x:y,16);
+RR_interwal_AVR=data(x:y,17); 
+GRUPA =data(x:y,18);
+ID =data(x:y,19);
+
+%
 [idx1,C1]=fun_clustering(P_amplitude_AVR);
-
 [idx2,C2]=fun_clustering(P_length_AVR);
-
 [idx3,C3]=fun_clustering(Q_amplitude_AVR);
-
 [idx4,C4]=fun_clustering(Q_length_AVR);
-
 [idx5,C5]=fun_clustering(R_amplitude_AVR);
-
 [idx6,C6]=fun_clustering(R_length_AVR);
-
 [idx7,C7]=fun_clustering(S_amplitude_AVR);
-
 [idx8,C8]=fun_clustering(S_length_AVR);
-
 [idx9,C9]=fun_clustering(T_amplitude_AVR);
-
 [idx10,C10]=fun_clustering(T_length_AVR);
-
 [idx11,C11]=fun_clustering(odstep_PQ_AVR);
-
 [idx12,C12]=fun_clustering(odstep_QT_AVR)
-
 [idx13,C13]=fun_clustering(zespol_QRS_AVR)
 [idx14,C14]=fun_clustering(dcinek_PQ_AVR)
 [idx15,C15]=fun_clustering(odcinek_ST_AVR)
@@ -52,7 +50,7 @@ ID =data(:,19);
 [idx17,C17]=fun_clustering(RR_interwal_AVR)
 
 
-%%
+%
 klasyfikacja=zeros(length(idx1),1);
 n=17 % liczba cech
 for j=1:n % dla j-tej cechy
@@ -106,7 +104,7 @@ end
 end
 
 
-%%
+%
 
 for j=1:length(idx1)
     suma_klasyfikacji(j)=sum(klasyfikacja(j,:));
@@ -120,7 +118,7 @@ else
 
 end
 end
-%%
+%
 
 zdrowy_klas=0;
 chory_klas=0;
@@ -157,11 +155,12 @@ for i=1:length(ocena)
    end
 end
 
-%% efektywnoœæ klasyfikacji
+% efektywnoœæ klasyfikacji
 
-zdrowy=length(find(GRUPA==1)) % prawdziwie zdrowy
+zdrowy=length(find(GRUPA==1)); % prawdziwie zdrowy
 
-chory=length(find(GRUPA==0)) % prawdziwie chory
+chory=length(find(GRUPA==0)); % prawdziwie chory
+
 
 
 

@@ -1,34 +1,30 @@
 clear
 clc
 
-data=load('patientsDATA.txt');
+%data=load('patientsDATA.txt');
 
-% x=randi(100)
-% y=x+randi(144)
-
-x=1;
-y=length(data);
+data=load('analiza.txt');
 
 
-P_amplitude_AVR=data(x:y,1);
-P_length_AVR=data(x:y,2);
-Q_amplitude_AVR =data(x:y,3);
-Q_length_AVR =data(x:y,4);
-R_amplitude_AVR =data(x:y,5);
-R_length_AVR =data(x:y,6);
-S_amplitude_AVR =data(x:y,7);
-S_length_AVR =data(x:y,8);
-T_amplitude_AVR =data(x:y,9);
-T_length_AVR =data(x:y,10);
-odstep_PQ_AVR =data(x:y,11);
-odstep_QT_AVR =data(x:y,12);
-zespol_QRS_AVR =data(x:y,13);
-dcinek_PQ_AVR =data(x:y,14);
-odcinek_ST_AVR =data(x:y,15);
-HR =data(x:y,16);
-RR_interwal_AVR=data(x:y,17); 
-GRUPA =data(x:y,18);
-ID =data(x:y,19);
+P_amplitude_AVR=data(:,1);
+P_length_AVR=data(:,2);
+Q_amplitude_AVR =data(:,3);
+Q_length_AVR =data(:,4);
+R_amplitude_AVR =data(:,5);
+R_length_AVR =data(:,6);
+S_amplitude_AVR =data(:,7);
+S_length_AVR =data(:,8);
+T_amplitude_AVR =data(:,9);
+T_length_AVR =data(:,10);
+odstep_PQ_AVR =data(:,11);
+odstep_QT_AVR =data(:,12);
+zespol_QRS_AVR =data(:,13);
+dcinek_PQ_AVR =data(:,14);
+odcinek_ST_AVR =data(:,15);
+HR =data(:,16);
+RR_interwal_AVR=data(:,17); 
+GRUPA =data(:,18);
+ID =data(:,19);
 
 %
 [idx1,C1]=fun_clustering(P_amplitude_AVR);
@@ -160,9 +156,6 @@ end
 zdrowy=length(find(GRUPA==1)); % prawdziwie zdrowy
 
 chory=length(find(GRUPA==0)); % prawdziwie chory
-
-
-
 
 dokladnosc=100*(zdrowy_klas+chory_klas)/(zdrowy+chory)
 
